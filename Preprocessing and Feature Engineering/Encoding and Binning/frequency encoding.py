@@ -9,9 +9,24 @@ categories = np.random.choice(['Electronics', 'Clothing', 'Groceries', 'Toys', '
 # Creating DataFrame
 df = pd.DataFrame({'Product': products, 'Category': categories})
 
-# Manually compute frequency of each category
-freq_map = df['Category'].value_counts().to_dict()  # Get the frequency of each category
-df['Encoded_Category'] = df['Category'].map(freq_map)  # Map frequencies to each category
 
-# Display the first few rows
-print(df.head(10))  # Display the first 10 rows for brevity
+
+# Step 1: Assign unique category numbers (encoding each category as a unique integer)
+df['Category_ID'] = pd.Categorical(df['Category']).codes  # Unique ID for each category
+
+# Step 2: Frequency Encoding (count how many times each category appears)
+freq_map = df['Category'].value_counts().to_dict()
+df['Frequency'] = df['Category'].map(freq_map)  # Assign frequency to each category
+
+# Step 3: Calculate the number of unique categories for dynamic padding
+num_categories = len(df['Category'].unique())
+
+
+
+# Step 4: Determine padding size based on number of categories
+padding_size = len(str(num_categories))  # Padding size based on the number of categories
+
+# Step 5: Concatenate unique category ID with frequency (with dynamic padding)
+df['Custom_Encoded'] = df['Category_ID'].astype(str).str.zfill(padding_size) + df['Frequency'].astype(str).str.zfill(padding_size)
+
+print(df)
